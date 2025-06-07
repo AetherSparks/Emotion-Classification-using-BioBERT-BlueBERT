@@ -124,13 +124,13 @@ def ensemble_decision(results, scores):
         if result not in weighted_scores:
             weighted_scores[result] = 0
         
-        # Apply model-specific weights
-        if i == 0:  # multilingual model - higher weight
-            weight = score * 1.5
-        elif i == 1:  # bert_multilingual model - medium weight
-            weight = score * 1.3
+        # Apply model-specific weights - INCREASED sensitivity
+        if i == 0:  # multilingual model - much higher weight
+            weight = score * 2.0  # Increased from 1.5
+        elif i == 1:  # bert_multilingual model - higher weight
+            weight = score * 1.8  # Increased from 1.3
         else:  # english model - lower weight for non-English text
-            weight = score * 0.7
+            weight = score * 0.5  # Decreased from 0.7
             
         weighted_scores[result] += weight
     
@@ -140,8 +140,8 @@ def ensemble_decision(results, scores):
         max_non_neutral = max(non_neutral.values())
         max_neutral = weighted_scores.get("neutral", 0)
         
-        # If non-neutral sentiment is at least 80% as strong as neutral, choose it
-        if max_non_neutral >= max_neutral * 0.8:
+        # LOWERED threshold: If non-neutral sentiment is at least 50% as strong as neutral, choose it
+        if max_non_neutral >= max_neutral * 0.5:  # Changed from 0.8 to 0.5
             return max(non_neutral.keys(), key=lambda x: non_neutral[x])
     
     # Otherwise, return the highest weighted score
@@ -166,10 +166,11 @@ if not os.path.exists(input_file):
 print(f"\n📂 Loading data from: {input_file}")
 df = pd.read_excel(input_file)
 
-# Remove test limit - process all texts
-# TEST_LIMIT = 100
-# df = df.head(TEST_LIMIT)
-# print(f"⚠️  Testing with first {TEST_LIMIT} rows only")
+# TEST MODE: Process only first 100 rows to see improvement
+TEST_MODE = False
+if TEST_MODE:
+    df = df.head(100)
+    print(f"🧪 TEST MODE: Processing first {len(df)} texts to test improved sensitivity")
 
 print(f"✅ Loaded {len(df)} rows of data")
 
