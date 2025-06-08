@@ -7,15 +7,21 @@ venv
 *.model
 
 # Results directories
-*/results/
-*/results_optimized/
-results/
-results_optimized/
+# */results/
+# */results_optimized/
+# results/
+# results_optimized/
 
 # Large data files
-*.png
-*.jpg
-*.jpeg
+# *.png
+# *.jpg
+# *.jpeg
+*.json
+*.jsonl
+*.jsonl.gz
+*.jsonl.gz.part
+*.jsonl.gz.part.1
+*.jsonl.gz.part.2
 
 # Python cache
 __pycache__/
