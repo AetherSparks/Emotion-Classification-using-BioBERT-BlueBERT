@@ -1,5 +1,5 @@
 === BIOBERT EMOTION CLASSIFICATION REPORT ===
-Generated on: 2025-06-09 19:02:32
+Generated on: 2025-06-09 20:05:56
 Model: dmis-lab/biobert-base-cased-v1.1
 ============================================================
 
@@ -11,8 +11,8 @@ OVERALL METRICS:
   Precision (Weighted): 0.2485
   Recall (Macro):     0.3333
   Recall (Weighted):  0.3333
-  RMSE:               0.4865
-  AUC-ROC:            0.5241
+  RMSE:               0.4846
+  AUC-ROC:            0.5632
   MCC:                0.0000
 
 EMOTION-WISE RESULTS:
