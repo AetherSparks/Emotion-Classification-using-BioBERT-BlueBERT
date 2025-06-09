@@ -134,14 +134,16 @@ class BIOWordEmbeddings:
         # Find BIO terms in text with clinical weighting
         for term, idx in self.bio_vocab.items():
             if term in text_lower:
-                # Give higher weight to clinical terms
-                if term in ['patient', 'clinical', 'hospital', 'doctor', 'nurse', 'medical']:
-                    clinical_weight = 1.2
-                else:
-                    clinical_weight = 1.0
-                    
-                bio_features += self.embeddings_matrix[idx] * clinical_weight
-                found_terms += 1
+                # Safety check for index bounds
+                if idx < self.embeddings_matrix.shape[0]:
+                    # Give higher weight to clinical terms (but these are now emotional terms)
+                    if term in ['दर्द', 'दिल', 'मन', 'गम', 'खुशी']:
+                        clinical_weight = 1.2
+                    else:
+                        clinical_weight = 1.0
+                        
+                    bio_features += self.embeddings_matrix[idx] * clinical_weight
+                    found_terms += 1
         
         # Average if multiple terms found
         if found_terms > 0:

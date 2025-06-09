@@ -132,8 +132,10 @@ class BIOWordEmbeddings:
         # Find BIO terms in text
         for term, idx in self.bio_vocab.items():
             if term in text_lower:
-                bio_features += self.embeddings_matrix[idx]
-                found_terms += 1
+                # Safety check for index bounds
+                if idx < self.embeddings_matrix.shape[0]:
+                    bio_features += self.embeddings_matrix[idx]
+                    found_terms += 1
         
         # Average if multiple terms found
         if found_terms > 0:
