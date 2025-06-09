@@ -1,33 +1,33 @@
 === BLUEBERT EMOTION CLASSIFICATION REPORT ===
-Generated on: 2025-06-09 16:58:36
+Generated on: 2025-06-09 19:23:55
 Model: bionlp/bluebert_pubmed_mimic_uncased_L-12_H-768_A-12
 ============================================================
 
 OVERALL METRICS:
-  Accuracy:           0.3333
-  F1 Score (Macro):   0.1667
-  F1 Score (Weighted): 0.1667
-  Precision (Macro):  0.1111
-  Precision (Weighted): 0.1111
-  Recall (Macro):     0.3333
-  Recall (Weighted):  0.3333
-  RMSE:               0.4714
-  AUC-ROC:            0.5866
-  MCC:                0.0000
+  Accuracy:           0.4583
+  F1 Score (Macro):   0.4170
+  F1 Score (Weighted): 0.4170
+  Precision (Macro):  0.4712
+  Precision (Weighted): 0.4712
+  Recall (Macro):     0.4583
+  Recall (Weighted):  0.4583
+  RMSE:               0.4599
+  AUC-ROC:            0.6309
+  MCC:                0.2037
 
 EMOTION-WISE RESULTS:
   NEGATIVE:
-    Precision: 0.0000
-    Recall:    0.0000
-    F1-Score:  0.0000
+    Precision: 0.4400
+    Recall:    0.6875
+    F1-Score:  0.5366
     Support:   16.0
   NEUTRAL:
-    Precision: 0.3333
-    Recall:    1.0000
-    F1-Score:  0.5000
+    Precision: 0.4737
+    Recall:    0.5625
+    F1-Score:  0.5143
     Support:   16.0
   POSITIVE:
-    Precision: 0.0000
-    Recall:    0.0000
-    F1-Score:  0.0000
+    Precision: 0.5000
+    Recall:    0.1250
+    F1-Score:  0.2000
     Support:   16.0
