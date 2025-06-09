@@ -214,23 +214,52 @@ The enhanced training with **10 epochs** and **200+ Hindi emotional terms** has 
         print(f"❌ Error updating summary file: {str(e)}")
 
 def run_command(command, model_name):
-    """Run a command and track time"""
+    """Run a command and track time with real-time output"""
     print(f"\n🚀 Starting {model_name} training...")
     print(f"Command: {command}")
+    print(f"{'='*60}")
     start_time = time.time()
     
     try:
-        result = subprocess.run(command, shell=True, check=True, capture_output=True, text=True)
+        # Use Popen for real-time output instead of capturing
+        process = subprocess.Popen(
+            command, 
+            shell=True, 
+            stdout=subprocess.PIPE, 
+            stderr=subprocess.STDOUT,
+            text=True,
+            encoding='utf-8',
+            errors='replace',  # Handle Unicode errors gracefully
+            bufsize=1,
+            universal_newlines=True
+        )
+        
+        # Print output in real-time
+        for line in iter(process.stdout.readline, ''):
+            if line.strip():  # Only print non-empty lines
+                print(f"  {line.strip()}")
+        
+        process.stdout.close()
+        return_code = process.wait()
+        
         end_time = time.time()
         duration = end_time - start_time
         
-        print(f"✅ {model_name} completed in {duration/60:.1f} minutes")
-        return True, duration
-    except subprocess.CalledProcessError as e:
+        if return_code == 0:
+            print(f"{'='*60}")
+            print(f"✅ {model_name} completed in {duration/60:.1f} minutes")
+            return True, duration
+        else:
+            print(f"{'='*60}")
+            print(f"❌ {model_name} failed after {duration/60:.1f} minutes")
+            return False, duration
+            
+    except Exception as e:
         end_time = time.time()
         duration = end_time - start_time
+        print(f"{'='*60}")
         print(f"❌ {model_name} failed after {duration/60:.1f} minutes")
-        print(f"Error: {e.stderr}")
+        print(f"Error: {str(e)}")
         return False, duration
 
 def main():
@@ -281,10 +310,16 @@ def main():
     total_start = time.time()
     
     for i, model in enumerate(models, 1):
-        print(f"\n{'='*60}")
+        print(f"\n{'='*80}")
         print(f"📊 MODEL {i}/{len(models)}: {model['name']}")
         print(f"🎯 Expected: {model['expected_improvement']}")
-        print(f"{'='*60}")
+        print(f"⏱️  Progress: {i-1}/{len(models)} completed")
+        if i > 1:
+            elapsed = time.time() - total_start
+            avg_time = elapsed / (i-1)
+            remaining = (len(models) - (i-1)) * avg_time
+            print(f"⏰ Estimated remaining: {remaining/60:.1f} minutes")
+        print(f"{'='*80}")
         
         success, duration = run_command(model['command'], model['name'])
         results.append({
@@ -293,6 +328,13 @@ def main():
             'duration': duration,
             'expected': model['expected_improvement']
         })
+        
+        # Show intermediate summary
+        successful_so_far = sum(1 for r in results if r['success'])
+        print(f"\n📊 INTERMEDIATE STATUS:")
+        print(f"  ✅ Completed: {i}/{len(models)} models")
+        print(f"  🎯 Success rate: {successful_so_far}/{i} ({successful_so_far/i*100:.1f}%)")
+        print(f"  ⏱️  Total elapsed: {(time.time() - total_start)/60:.1f} minutes")
     
     total_duration = time.time() - total_start
     
