@@ -97,9 +97,25 @@ class BIOWordEmbeddings:
             'समय', 'वक्त', 'पल', 'लम्हा', 'क्षण', 'दिन', 'रात',
             'भविष्य', 'भूत', 'वर्तमान', 'कल', 'आज', 'कभी', 'हमेशा',
             
-            # Emotional Intensifiers & Descriptors
+            # Enhanced Emotional Intensifiers & Descriptors
             'बहुत', 'काफी', 'अधिक', 'कम', 'थोड़ा', 'ज्यादा', 'अत्यधिक',
-            'गहरा', 'तीव्र', 'हल्का', 'मजबूत', 'कमजोर', 'नरम', 'सख्त'
+            'गहरा', 'तीव्र', 'हल्का', 'मजबूत', 'कमजोर', 'नरम', 'सख्त',
+            'अति', 'परम', 'महान', 'विशाल', 'छोटा', 'सूक्ष्म', 'गहन',
+            'प्रबल', 'दुर्बल', 'शक्तिशाली', 'निर्बल', 'उग्र', 'मंद',
+            
+            # Poetry & Literature Terms
+            'कविता', 'गजल', 'शेर', 'नज्म', 'छंद', 'रस', 'भाव', 'रागिनी',
+            'धुन', 'सुर', 'ताल', 'लय', 'गीत', 'गान', 'संगीत', 'स्वर',
+            'वाणी', 'बोल', 'शब्द', 'अल्फाज', 'बात', 'कहना', 'सुनना',
+            
+            # Additional Emotional Terms
+            'खिलखिलाहट', 'प्रसन्नता', 'आनन्द', 'मजा', 'धमाल', 'रोमांच',
+            'दुखी', 'व्यथित', 'पीड़ित', 'संतप्त', 'व्याकुल', 'चिंतित',
+            'चिढ़चिढ़ाहट', 'अप्रसन्न', 'कुपित', 'तमतमाना', 'भभकना',
+            'सहमा', 'भयभीत', 'दहशत', 'खौफ', 'हैरानी', 'अस्थिरता',
+            'मानसिकता', 'भावुकता', 'संवेदना', 'अंतरात्मा', 'हृदय', 'रूह',
+            'साथी', 'हमसफर', 'संगी', 'यारी', 'दोस्ताना', 'प्रेमी', 'प्रेमिका',
+            'युग', 'काल', 'अवधि', 'दौर', 'जमाना', 'उम्र', 'आयु', 'अस्तित्व'
         ]
         self._initialize_embeddings()
     
@@ -774,7 +790,7 @@ def main():
     parser = argparse.ArgumentParser(description='BlueBERT + BIO Embeddings Emotion Classification')
     parser.add_argument('--data', default='../../datasets/corrected_balanced_dataset.xlsx',
                        help='Path to balanced emotion dataset')
-    parser.add_argument('--epochs', type=int, default=5, help='Number of training epochs')
+    parser.add_argument('--epochs', type=int, default=10, help='Number of training epochs')
     parser.add_argument('--batch_size', type=int, default=8, help='Batch size')
     parser.add_argument('--learning_rate', type=float, default=2e-5, help='Learning rate')
     parser.add_argument('--max_length', type=int, default=128, help='Max sequence length')
