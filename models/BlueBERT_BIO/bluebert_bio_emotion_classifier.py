@@ -61,31 +61,45 @@ class BIOWordEmbeddings:
         self.bio_vocab = {}
         self.embeddings = {}
         self.bio_terms = [
-            # Medical conditions
-            'disease', 'disorder', 'syndrome', 'infection', 'cancer', 'tumor',
-            'diabetes', 'hypertension', 'pneumonia', 'depression', 'anxiety',
-            'bipolar', 'schizophrenia', 'autism', 'adhd', 'ptsd', 'ocd',
+            # Core Emotional Terms (Hindi)
+            'दर्द', 'गम', 'खुशी', 'आनंद', 'प्रेम', 'मोहब्बत', 'इश्क', 'प्यार',
+            'उदासी', 'निराशा', 'उम्मीद', 'आशा', 'डर', 'चिंता', 'परेशानी',
+            'मुस्कान', 'हंसी', 'रोना', 'आंसू', 'दुख', 'सुख', 'ज़ख्म', 'टूट',
             
-            # Anatomy
-            'heart', 'lung', 'brain', 'liver', 'kidney', 'stomach', 'muscle',
-            'bone', 'blood', 'nerve', 'cell', 'tissue', 'organ', 'artery',
+            # Happiness/Joy Terms
+            'प्रसन्न', 'हर्ष', 'आह्लाद', 'उल्लास', 'मस्ती', 'रंग', 'जश्न',
+            'उत्साह', 'उमंग', 'खुशी', 'प्रफुल्लित', 'हर्षित', 'गुदगुदाहट',
             
-            # Symptoms
-            'pain', 'fever', 'cough', 'headache', 'nausea', 'fatigue', 'weakness',
-            'dizziness', 'shortness', 'breath', 'chest', 'abdominal', 'joint',
+            # Sadness/Sorrow Terms  
+            'विषाद', 'शोक', 'मातम', 'रुदन', 'क्रंदन', 'रुलाई', 'अवसाद',
+            'निराश', 'हताश', 'उदास', 'मायूस', 'बेचैन', 'परेशान',
             
-            # Medications
-            'medication', 'drug', 'antibiotic', 'insulin', 'aspirin', 'morphine',
-            'therapy', 'treatment', 'surgery', 'procedure', 'diagnosis',
+            # Anger/Frustration Terms
+            'गुस्सा', 'क्रोध', 'रोष', 'नाराज़', 'खफा', 'चिढ़', 'झुंझलाहट',
+            'रुष्ट', 'कोप', 'अमर्ष', 'तिलमिलाहट', 'बेसब्री',
             
-            # Emotional/Psychological terms
-            'stress', 'mood', 'emotion', 'feeling', 'mental', 'psychological',
-            'cognitive', 'behavioral', 'social', 'family', 'relationship',
+            # Fear/Anxiety Terms
+            'भय', 'डर', 'घबराहट', 'फिक्र', 'बेचैनी', 'व्याकुलता',
+            'आतंक', 'त्रास', 'संकोच', 'शंका', 'संदेह',
             
-            # Clinical context (enhanced for BlueBERT)
-            'patient', 'doctor', 'nurse', 'hospital', 'clinic', 'medical',
-            'health', 'healthcare', 'clinical', 'chronic', 'acute', 'severe',
-            'discharge', 'admission', 'emergency', 'icu', 'ward', 'outpatient'
+            # Psychological/Mental Terms
+            'दिल', 'मन', 'आत्मा', 'भावना', 'एहसास', 'अनुभव', 'महसूस',
+            'याद', 'यादें', 'सोच', 'विचार', 'ख्याल', 'ख्वाब', 'सपना',
+            'चेतना', 'मूड', 'तबीयत', 'हाल', 'अकेला', 'तन्हा', 'अकेलापन',
+            
+            # Relationship & Social Terms  
+            'रिश्ता', 'रिश्ते', 'दोस्त', 'दोस्ती', 'मित्र', 'मित्रता', 'परिवार',
+            'माता', 'पिता', 'भाई', 'बहन', 'पति', 'पत्नी', 'बच्चे',
+            'समाज', 'लोग', 'इंसान', 'व्यक्ति', 'बिछड़', 'जुदाई', 'मिलन',
+            
+            # Life & Existence Terms
+            'जिंदगी', 'ज़िन्दगी', 'जीवन', 'मौत', 'मृत्यु', 'जन्म',
+            'समय', 'वक्त', 'पल', 'लम्हा', 'क्षण', 'दिन', 'रात',
+            'भविष्य', 'भूत', 'वर्तमान', 'कल', 'आज', 'कभी', 'हमेशा',
+            
+            # Emotional Intensifiers & Descriptors
+            'बहुत', 'काफी', 'अधिक', 'कम', 'थोड़ा', 'ज्यादा', 'अत्यधिक',
+            'गहरा', 'तीव्र', 'हल्का', 'मजबूत', 'कमजोर', 'नरम', 'सख्त'
         ]
         self._initialize_embeddings()
     
