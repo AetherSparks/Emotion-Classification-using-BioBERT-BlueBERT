@@ -756,12 +756,12 @@ class BlueBERTBIOTrainer:
 
 def main():
     parser = argparse.ArgumentParser(description='BlueBERT + BIO Embeddings Emotion Classification')
-    parser.add_argument('--data', default='../../datasets/output_with_emotions_undersample.xlsx',
+    parser.add_argument('--data', default='../../datasets/corrected_balanced_dataset.xlsx',
                        help='Path to balanced emotion dataset')
-    parser.add_argument('--epochs', type=int, default=3, help='Number of training epochs')
-    parser.add_argument('--batch_size', type=int, default=16, help='Batch size')
+    parser.add_argument('--epochs', type=int, default=5, help='Number of training epochs')
+    parser.add_argument('--batch_size', type=int, default=8, help='Batch size')
     parser.add_argument('--learning_rate', type=float, default=2e-5, help='Learning rate')
-    parser.add_argument('--max_length', type=int, default=512, help='Max sequence length')
+    parser.add_argument('--max_length', type=int, default=128, help='Max sequence length')
     parser.add_argument('--save_dir', default='results', help='Directory to save results')
     
     args = parser.parse_args()
