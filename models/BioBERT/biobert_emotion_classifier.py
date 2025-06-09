@@ -513,7 +513,8 @@ class BioBERTTrainer:
         
         # Save training history if available
         if 'training_history' in self.results:
-            self.plot_training_history(save_dir)
+            test_accuracy = metrics.get('accuracy', None)
+            self.plot_training_history(save_dir, test_accuracy)
         
         # Save model
         model_file = os.path.join(save_dir, "biobert_model.pth")
@@ -547,8 +548,8 @@ class BioBERTTrainer:
         plt.close()
         print(f"✅ Confusion matrix plot saved to: {cm_file}")
     
-    def plot_training_history(self, save_dir):
-        """Plot and save training history"""
+    def plot_training_history(self, save_dir, test_accuracy=None):
+        """Plot and save training history with clear accuracy distinction"""
         history = self.results['training_history']
         
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
@@ -559,21 +560,41 @@ class BioBERTTrainer:
         # Loss plot
         ax1.plot(epochs, history['train_losses'], label='Training Loss', marker='o')
         ax1.plot(epochs, history['val_losses'], label='Validation Loss', marker='s')
-        ax1.set_title('Model Loss')
+        ax1.set_title('Training & Validation Loss')
         ax1.set_xlabel('Epoch')
         ax1.set_ylabel('Loss')
         ax1.set_xticks(epochs)
         ax1.legend()
         ax1.grid(True)
         
-        # Accuracy plot
-        ax2.plot(epochs, history['val_accuracies'], label='Validation Accuracy', marker='o', color='green')
-        ax2.set_title('Model Accuracy')
+        # Accuracy plot with clear distinction
+        ax2.plot(epochs, history['val_accuracies'], label='Validation Accuracy (during training)', 
+                marker='o', color='green', linewidth=2)
+        
+        # Add final test accuracy as horizontal reference line if provided
+        if test_accuracy is not None:
+            ax2.axhline(y=test_accuracy, color='red', linestyle='--', linewidth=2, 
+                       label=f'Final Test Accuracy: {test_accuracy:.4f}')
+        
+        ax2.set_title('Validation Accuracy During Training')
         ax2.set_xlabel('Epoch')
         ax2.set_ylabel('Accuracy')
         ax2.set_xticks(epochs)
+        ax2.set_ylim(0, 1)  # Set y-axis from 0 to 1 for better readability
         ax2.legend()
         ax2.grid(True)
+        
+        # Add text annotation to clarify the difference
+        if test_accuracy is not None:
+            ax2.text(0.02, 0.98, 
+                    f'Note: Validation accuracy shown during training epochs.\nFinal test accuracy on holdout set: {test_accuracy:.4f}',
+                    transform=ax2.transAxes, fontsize=9, verticalalignment='top',
+                    bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.7))
+        else:
+            ax2.text(0.02, 0.98, 
+                    'Note: This shows validation accuracy during training epochs.\nFinal test accuracy calculated separately on holdout test set.',
+                    transform=ax2.transAxes, fontsize=9, verticalalignment='top',
+                    bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.7))
         
         history_file = os.path.join(save_dir, "biobert_training_history.png")
         plt.savefig(history_file, dpi=300, bbox_inches='tight')

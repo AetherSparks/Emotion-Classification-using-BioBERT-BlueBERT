@@ -499,12 +499,12 @@ class MultiBERTTrainer:
             
             print(f"  Train Loss: {avg_train_loss:.4f}")
             print(f"  Val Loss: {val_loss:.4f}")
-            print(f"  Val Accuracy: {val_accuracy:.4f}")
+            print(f"  🔍 VALIDATION Accuracy: {val_accuracy:.4f}")
             
             # Save best model
             if val_accuracy > best_val_accuracy:
                 best_val_accuracy = val_accuracy
-                print(f"  🎯 New best validation accuracy: {best_val_accuracy:.4f}")
+                print(f"  🎯 New best VALIDATION accuracy: {best_val_accuracy:.4f}")
         
         print(f"\n✅ Training completed. Best validation accuracy: {best_val_accuracy:.4f}")
         
@@ -628,19 +628,19 @@ class MultiBERTTrainer:
     
     def print_results(self, metrics):
         """Print evaluation results"""
-        print(f"\n🎯 EVALUATION RESULTS")
+        print(f"\n🎯 FINAL TEST SET EVALUATION RESULTS")
         print("=" * 60)
-        print(f"📊 OVERALL METRICS:")
-        print(f"  Accuracy:           {metrics['accuracy']:.4f}")
-        print(f"  F1 Score (Macro):   {metrics['f1_macro']:.4f}")
-        print(f"  F1 Score (Weighted): {metrics['f1_weighted']:.4f}")
-        print(f"  Precision (Macro):  {metrics['precision_macro']:.4f}")
-        print(f"  Precision (Weighted): {metrics['precision_weighted']:.4f}")
-        print(f"  Recall (Macro):     {metrics['recall_macro']:.4f}")
-        print(f"  Recall (Weighted):  {metrics['recall_weighted']:.4f}")
-        print(f"  RMSE:               {metrics['rmse']:.4f}")
-        print(f"  AUC-ROC:            {metrics['auc_roc']:.4f}")
-        print(f"  MCC:                {metrics['mcc']:.4f}")
+        print(f"📊 FINAL TEST METRICS (This is what gets saved & compared):")
+        print(f"  🧪 TEST Accuracy:           {metrics['accuracy']:.4f} ({metrics['accuracy']:.2%})")
+        print(f"  🧪 TEST F1 Score (Macro):   {metrics['f1_macro']:.4f}")
+        print(f"  🧪 TEST F1 Score (Weighted): {metrics['f1_weighted']:.4f}")
+        print(f"  🧪 TEST Precision (Macro):  {metrics['precision_macro']:.4f}")
+        print(f"  🧪 TEST Precision (Weighted): {metrics['precision_weighted']:.4f}")
+        print(f"  🧪 TEST Recall (Macro):     {metrics['recall_macro']:.4f}")
+        print(f"  🧪 TEST Recall (Weighted):  {metrics['recall_weighted']:.4f}")
+        print(f"  🧪 TEST RMSE:               {metrics['rmse']:.4f}")
+        print(f"  🧪 TEST AUC-ROC:            {metrics['auc_roc']:.4f}")
+        print(f"  🧪 TEST MCC:                {metrics['mcc']:.4f}")
         
         print(f"\n📈 EMOTION-WISE RESULTS:")
         for emotion in self.emotion_classes:
@@ -713,7 +713,8 @@ class MultiBERTTrainer:
         
         # Save training history if available
         if 'training_history' in self.results:
-            self.plot_training_history(save_dir, prefix)
+            test_accuracy = metrics.get('accuracy', None)
+            self.plot_training_history(save_dir, prefix, test_accuracy)
         
         # Save model
         model_file = os.path.join(save_dir, f"{prefix}_model.pth")
@@ -752,8 +753,8 @@ class MultiBERTTrainer:
         plt.close()
         print(f"✅ Confusion matrix plot saved to: {cm_file}")
     
-    def plot_training_history(self, save_dir, prefix):
-        """Plot and save training history"""
+    def plot_training_history(self, save_dir, prefix, test_accuracy=None):
+        """Plot and save training history with clear accuracy distinction"""
         history = self.results['training_history']
         
         fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(15, 5))
@@ -764,21 +765,41 @@ class MultiBERTTrainer:
         # Loss plot
         ax1.plot(epochs, history['train_losses'], label='Training Loss', marker='o')
         ax1.plot(epochs, history['val_losses'], label='Validation Loss', marker='s')
-        ax1.set_title('Model Loss')
+        ax1.set_title('Training & Validation Loss')
         ax1.set_xlabel('Epoch')
         ax1.set_ylabel('Loss')
         ax1.set_xticks(epochs)
         ax1.legend()
         ax1.grid(True)
         
-        # Accuracy plot
-        ax2.plot(epochs, history['val_accuracies'], label='Validation Accuracy', marker='o', color='green')
-        ax2.set_title('Model Accuracy')
+        # Accuracy plot with clear distinction
+        ax2.plot(epochs, history['val_accuracies'], label='Validation Accuracy (during training)', 
+                marker='o', color='green', linewidth=2)
+        
+        # Add final test accuracy as horizontal reference line if provided
+        if test_accuracy is not None:
+            ax2.axhline(y=test_accuracy, color='red', linestyle='--', linewidth=2, 
+                       label=f'Final Test Accuracy: {test_accuracy:.4f}')
+        
+        ax2.set_title('Validation Accuracy During Training')
         ax2.set_xlabel('Epoch')
         ax2.set_ylabel('Accuracy')
         ax2.set_xticks(epochs)
+        ax2.set_ylim(0, 1)  # Set y-axis from 0 to 1 for better readability
         ax2.legend()
         ax2.grid(True)
+        
+        # Add text annotation to clarify the difference
+        if test_accuracy is not None:
+            ax2.text(0.02, 0.98, 
+                    f'Note: Validation accuracy shown during training epochs.\nFinal test accuracy on holdout set: {test_accuracy:.4f}',
+                    transform=ax2.transAxes, fontsize=9, verticalalignment='top',
+                    bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.7))
+        else:
+            ax2.text(0.02, 0.98, 
+                    'Note: This shows validation accuracy during training epochs.\nFinal test accuracy calculated separately on holdout test set.',
+                    transform=ax2.transAxes, fontsize=9, verticalalignment='top',
+                    bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.7))
         
         history_file = os.path.join(save_dir, f"{prefix}_training_history.png")
         plt.savefig(history_file, dpi=300, bbox_inches='tight')
