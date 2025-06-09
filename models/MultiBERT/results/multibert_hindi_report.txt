@@ -1,0 +1,34 @@
+=== MULTIBERT EMOTION CLASSIFICATION REPORT ===
+Generated on: 2025-06-09 17:57:50
+Model: bert-base-multilingual-cased
+Hindi Features: Yes
+============================================================
+
+OVERALL METRICS:
+  Accuracy:           0.4898
+  F1 Score (Macro):   0.4912
+  F1 Score (Weighted): 0.4924
+  Precision (Macro):  0.5363
+  Precision (Weighted): 0.5351
+  Recall (Macro):     0.4865
+  Recall (Weighted):  0.4898
+  RMSE:               0.8690
+  AUC-ROC:            0.7176
+  MCC:                0.2380
+
+EMOTION-WISE RESULTS:
+  NEGATIVE:
+    Precision: 0.7778
+    Recall:    0.4375
+    F1-Score:  0.5600
+    Support:   16.0
+  NEUTRAL:
+    Precision: 0.3529
+    Recall:    0.3750
+    F1-Score:  0.3636
+    Support:   16.0
+  POSITIVE:
+    Precision: 0.4783
+    Recall:    0.6471
+    F1-Score:  0.5500
+    Support:   17.0
