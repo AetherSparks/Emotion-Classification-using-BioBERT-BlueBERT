@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """
-BlueBERT Emotion Classification Model
+BioBERT + BIO Word Embeddings Emotion Classification Model
 
-This script implements a comprehensive BlueBERT-based emotion classification system
-with detailed evaluation metrics and emotion-wise analysis.
+This script implements a comprehensive BioBERT-based emotion classification system
+enhanced with additional BIO word embeddings for improved biomedical text understanding.
 
 Author: Emotion Classification Project
-Date: Generated for BlueBERT Model Training
+Date: Generated for BioBERT + BIO Model Training
 """
 
 import os
@@ -45,19 +45,95 @@ from datetime import datetime
 import argparse
 import json
 import warnings
+import re
+from collections import defaultdict
 warnings.filterwarnings('ignore')
 
 # Set device
 device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
 print(f"🔧 Using device: {device}")
 
-class EmotionDataset(Dataset):
-    """Custom Dataset for emotion classification"""
+class BIOWordEmbeddings:
+    """Custom BIO word embeddings for biomedical terms"""
     
-    def __init__(self, texts, labels, tokenizer, max_length=512):
+    def __init__(self, embedding_dim=100):
+        self.embedding_dim = embedding_dim
+        self.bio_vocab = {}
+        self.embeddings = {}
+        self.bio_terms = [
+            # Medical conditions
+            'disease', 'disorder', 'syndrome', 'infection', 'cancer', 'tumor',
+            'diabetes', 'hypertension', 'pneumonia', 'depression', 'anxiety',
+            'bipolar', 'schizophrenia', 'autism', 'adhd', 'ptsd', 'ocd',
+            
+            # Anatomy
+            'heart', 'lung', 'brain', 'liver', 'kidney', 'stomach', 'muscle',
+            'bone', 'blood', 'nerve', 'cell', 'tissue', 'organ', 'artery',
+            
+            # Symptoms
+            'pain', 'fever', 'cough', 'headache', 'nausea', 'fatigue', 'weakness',
+            'dizziness', 'shortness', 'breath', 'chest', 'abdominal', 'joint',
+            
+            # Medications
+            'medication', 'drug', 'antibiotic', 'insulin', 'aspirin', 'morphine',
+            'therapy', 'treatment', 'surgery', 'procedure', 'diagnosis',
+            
+            # Emotional/Psychological terms
+            'stress', 'mood', 'emotion', 'feeling', 'mental', 'psychological',
+            'cognitive', 'behavioral', 'social', 'family', 'relationship',
+            
+            # General medical
+            'patient', 'doctor', 'nurse', 'hospital', 'clinic', 'medical',
+            'health', 'healthcare', 'clinical', 'chronic', 'acute', 'severe'
+        ]
+        self._initialize_embeddings()
+    
+    def _initialize_embeddings(self):
+        """Initialize BIO word embeddings"""
+        print("🧬 Initializing BIO word embeddings...")
+        
+        # Create vocabulary
+        for i, term in enumerate(self.bio_terms):
+            self.bio_vocab[term] = i
+        
+        # Initialize random embeddings (in practice, these would be pre-trained)
+        np.random.seed(42)
+        vocab_size = len(self.bio_vocab)
+        self.embeddings_matrix = np.random.uniform(
+            -0.1, 0.1, (vocab_size, self.embedding_dim)
+        ).astype(np.float32)
+        
+        # Convert to torch tensor
+        self.embeddings_tensor = torch.from_numpy(self.embeddings_matrix)
+        
+        print(f"✅ Initialized {vocab_size} BIO terms with {self.embedding_dim}D embeddings")
+    
+    def get_bio_features(self, text):
+        """Extract BIO features from text"""
+        text_lower = text.lower()
+        bio_features = np.zeros(self.embedding_dim, dtype=np.float32)
+        found_terms = 0
+        
+        # Find BIO terms in text
+        for term, idx in self.bio_vocab.items():
+            if term in text_lower:
+                bio_features += self.embeddings_matrix[idx]
+                found_terms += 1
+        
+        # Average if multiple terms found
+        if found_terms > 0:
+            bio_features /= found_terms
+        
+        return bio_features
+
+class EmotionDataset(Dataset):
+    """Enhanced Dataset for emotion classification with BIO embeddings"""
+    
+    def __init__(self, texts, labels, tokenizer, bio_embeddings, max_length=512):
         self.texts = texts
         self.labels = labels
         self.tokenizer = tokenizer
+        self.bio_embeddings = bio_embeddings
         self.max_length = max_length
     
     def __len__(self):
@@ -67,7 +143,7 @@ class EmotionDataset(Dataset):
         text = str(self.texts[idx])
         label = self.labels[idx]
         
-        # Tokenize text
+        # Tokenize text for BioBERT
         encoding = self.tokenizer(
             text,
             truncation=True,
@@ -76,49 +152,90 @@ class EmotionDataset(Dataset):
             return_tensors='pt'
         )
         
+        # Extract BIO features
+        bio_features = self.bio_embeddings.get_bio_features(text)
+        
         return {
             'input_ids': encoding['input_ids'].flatten(),
             'attention_mask': encoding['attention_mask'].flatten(),
+            'bio_features': torch.tensor(bio_features, dtype=torch.float32),
             'labels': torch.tensor(label, dtype=torch.long)
         }
 
-class BlueBERTEmotionClassifier(nn.Module):
-    """BlueBERT-based emotion classifier"""
+class BioBERTBIOEmotionClassifier(nn.Module):
+    """Enhanced BioBERT classifier with BIO word embeddings"""
     
-    def __init__(self, model_name, num_classes, dropout_rate=0.3):
-        super(BlueBERTEmotionClassifier, self).__init__()
+    def __init__(self, model_name, num_classes, bio_dim=100, fusion_dim=256, dropout_rate=0.3):
+        super(BioBERTBIOEmotionClassifier, self).__init__()
         
-        # Load BlueBERT configuration and model
+        # Load BioBERT configuration and model
         self.config = AutoConfig.from_pretrained(model_name)
         self.bert = AutoModel.from_pretrained(model_name)
         
-        # Classification head
-        self.dropout = nn.Dropout(dropout_rate)
-        self.classifier = nn.Linear(self.config.hidden_size, num_classes)
+        # BIO features processing
+        self.bio_dim = bio_dim
+        self.bio_projection = nn.Linear(bio_dim, fusion_dim)
+        self.bio_norm = nn.LayerNorm(fusion_dim)
         
-    def forward(self, input_ids, attention_mask):
-        # Get BERT outputs
-        outputs = self.bert(
+        # BioBERT features processing
+        self.bert_projection = nn.Linear(self.config.hidden_size, fusion_dim)
+        self.bert_norm = nn.LayerNorm(fusion_dim)
+        
+        # Fusion layer
+        self.fusion_layer = nn.Linear(fusion_dim * 2, fusion_dim)
+        self.fusion_norm = nn.LayerNorm(fusion_dim)
+        self.fusion_activation = nn.ReLU()
+        
+        # Classification head with multiple layers
+        self.dropout1 = nn.Dropout(dropout_rate)
+        self.classifier1 = nn.Linear(fusion_dim, fusion_dim // 2)
+        self.classifier1_norm = nn.LayerNorm(fusion_dim // 2)
+        self.classifier1_activation = nn.ReLU()
+        
+        self.dropout2 = nn.Dropout(dropout_rate)
+        self.classifier2 = nn.Linear(fusion_dim // 2, num_classes)
+        
+    def forward(self, input_ids, attention_mask, bio_features):
+        # Get BioBERT outputs
+        bert_outputs = self.bert(
             input_ids=input_ids,
             attention_mask=attention_mask
         )
         
-        # Use pooled output
-        pooled_output = outputs.pooler_output
+        # Process BioBERT features
+        bert_pooled = bert_outputs.pooler_output
+        bert_projected = self.bert_projection(bert_pooled)
+        bert_features = self.bert_norm(bert_projected)
         
-        # Apply dropout and classification
-        output = self.dropout(pooled_output)
-        logits = self.classifier(output)
+        # Process BIO features
+        bio_projected = self.bio_projection(bio_features)
+        bio_processed = self.bio_norm(bio_projected)
+        
+        # Fusion of BioBERT and BIO features
+        fused_features = torch.cat([bert_features, bio_processed], dim=1)
+        fused_output = self.fusion_layer(fused_features)
+        fused_normalized = self.fusion_norm(fused_output)
+        fused_activated = self.fusion_activation(fused_normalized)
+        
+        # Classification layers
+        x = self.dropout1(fused_activated)
+        x = self.classifier1(x)
+        x = self.classifier1_norm(x)
+        x = self.classifier1_activation(x)
+        
+        x = self.dropout2(x)
+        logits = self.classifier2(x)
         
         return logits
 
-class BlueBERTTrainer:
-    """Comprehensive BlueBERT trainer with evaluation metrics"""
+class BioBERTBIOTrainer:
+    """Comprehensive BioBERT + BIO trainer with evaluation metrics"""
     
-    def __init__(self, model_name="bionlp/bluebert_pubmed_mimic_uncased_L-12_H-768_A-12"):
+    def __init__(self, model_name="dmis-lab/biobert-base-cased-v1.1"):
         self.model_name = model_name
         self.tokenizer = None
         self.model = None
+        self.bio_embeddings = BIOWordEmbeddings()
         self.label_encoder = LabelEncoder()
         self.results = {}
         self.emotion_classes = []
@@ -145,6 +262,28 @@ class BlueBERTTrainer:
             for emotion, count in emotion_counts.items():
                 percentage = (count / len(df)) * 100
                 print(f"  {emotion}: {count} samples ({percentage:.1f}%)")
+            
+            # Analyze BIO term presence
+            print("\n🧬 BIO TERMS ANALYSIS:")
+            bio_term_counts = defaultdict(int)
+            total_bio_terms = 0
+            
+            for text in df['text']:
+                text_lower = text.lower()
+                for term in self.bio_embeddings.bio_terms:
+                    if term in text_lower:
+                        bio_term_counts[term] += 1
+                        total_bio_terms += 1
+            
+            print(f"  Total BIO terms found: {total_bio_terms}")
+            print(f"  Unique BIO terms: {len(bio_term_counts)}")
+            print(f"  Average BIO terms per text: {total_bio_terms/len(df):.2f}")
+            
+            # Show top BIO terms
+            top_terms = sorted(bio_term_counts.items(), key=lambda x: x[1], reverse=True)[:10]
+            print("  Top BIO terms:")
+            for term, count in top_terms:
+                print(f"    {term}: {count} occurrences")
             
             return df
             
@@ -187,21 +326,21 @@ class BlueBERTTrainer:
         return (X_train, y_train), (X_val, y_val), (X_test, y_test)
     
     def create_data_loaders(self, train_data, val_data, test_data, batch_size=16, max_length=512):
-        """Create PyTorch data loaders"""
+        """Create PyTorch data loaders with BIO embeddings"""
         print(f"\n🔧 CREATING DATA LOADERS (batch_size={batch_size})...")
         
         # Initialize tokenizer
         self.tokenizer = AutoTokenizer.from_pretrained(self.model_name)
         
-        # Create datasets
+        # Create datasets with BIO embeddings
         train_dataset = EmotionDataset(
-            train_data[0], train_data[1], self.tokenizer, max_length
+            train_data[0], train_data[1], self.tokenizer, self.bio_embeddings, max_length
         )
         val_dataset = EmotionDataset(
-            val_data[0], val_data[1], self.tokenizer, max_length
+            val_data[0], val_data[1], self.tokenizer, self.bio_embeddings, max_length
         )
         test_dataset = EmotionDataset(
-            test_data[0], test_data[1], self.tokenizer, max_length
+            test_data[0], test_data[1], self.tokenizer, self.bio_embeddings, max_length
         )
         
         # Create data loaders
@@ -209,7 +348,7 @@ class BlueBERTTrainer:
         val_loader = DataLoader(val_dataset, batch_size=batch_size, shuffle=False)
         test_loader = DataLoader(test_dataset, batch_size=batch_size, shuffle=False)
         
-        print(f"✅ Created data loaders")
+        print(f"✅ Created data loaders with BIO embeddings")
         print(f"  Train batches: {len(train_loader)}")
         print(f"  Val batches: {len(val_loader)}")
         print(f"  Test batches: {len(test_loader)}")
@@ -217,29 +356,32 @@ class BlueBERTTrainer:
         return train_loader, val_loader, test_loader
     
     def initialize_model(self, num_classes):
-        """Initialize the BlueBERT model"""
-        print(f"\n🤖 INITIALIZING BLUEBERT MODEL...")
-        print(f"  Model: {self.model_name}")
+        """Initialize the enhanced BioBERT + BIO model"""
+        print(f"\n🤖 INITIALIZING BIOBERT + BIO MODEL...")
+        print(f"  BioBERT Model: {self.model_name}")
+        print(f"  BIO Embedding Dim: {self.bio_embeddings.embedding_dim}")
         print(f"  Classes: {num_classes}")
         
-        self.model = BlueBERTEmotionClassifier(
+        self.model = BioBERTBIOEmotionClassifier(
             model_name=self.model_name,
-            num_classes=num_classes
+            num_classes=num_classes,
+            bio_dim=self.bio_embeddings.embedding_dim
         ).to(device)
         
         # Count parameters
         total_params = sum(p.numel() for p in self.model.parameters())
         trainable_params = sum(p.numel() for p in self.model.parameters() if p.requires_grad)
         
-        print(f"✅ Model initialized")
+        print(f"✅ Enhanced model initialized")
         print(f"  Total parameters: {total_params:,}")
         print(f"  Trainable parameters: {trainable_params:,}")
+        print(f"  Additional BIO parameters: ~{self.bio_embeddings.embedding_dim * 256:,}")
         
         return self.model
     
     def train_model(self, train_loader, val_loader, epochs=3, learning_rate=2e-5):
-        """Train the BlueBERT model"""
-        print(f"\n🚀 TRAINING BLUEBERT MODEL...")
+        """Train the enhanced BioBERT + BIO model"""
+        print(f"\n🚀 TRAINING BIOBERT + BIO MODEL...")
         print(f"  Epochs: {epochs}")
         print(f"  Learning rate: {learning_rate}")
         
@@ -273,11 +415,12 @@ class BlueBERTTrainer:
                 # Move to device
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
+                bio_features = batch['bio_features'].to(device)
                 labels = batch['labels'].to(device)
                 
                 # Forward pass
                 optimizer.zero_grad()
-                logits = self.model(input_ids, attention_mask)
+                logits = self.model(input_ids, attention_mask, bio_features)
                 loss = criterion(logits, labels)
                 
                 # Backward pass
@@ -335,9 +478,10 @@ class BlueBERTTrainer:
             for batch in data_loader:
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
+                bio_features = batch['bio_features'].to(device)
                 labels = batch['labels'].to(device)
                 
-                logits = self.model(input_ids, attention_mask)
+                logits = self.model(input_ids, attention_mask, bio_features)
                 
                 if criterion:
                     loss = criterion(logits, labels)
@@ -363,9 +507,10 @@ class BlueBERTTrainer:
             for batch in data_loader:
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
+                bio_features = batch['bio_features'].to(device)
                 labels = batch['labels'].to(device)
                 
-                logits = self.model(input_ids, attention_mask)
+                logits = self.model(input_ids, attention_mask, bio_features)
                 probabilities = torch.softmax(logits, dim=1)
                 predictions = torch.argmax(logits, dim=1)
                 
@@ -472,17 +617,18 @@ class BlueBERTTrainer:
         timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         # Save metrics as JSON
-        metrics_file = os.path.join(save_dir, f"bluebert_metrics_{timestamp}.json")
+        metrics_file = os.path.join(save_dir, f"biobert_bio_metrics_{timestamp}.json")
         with open(metrics_file, 'w') as f:
             json.dump(metrics, f, indent=2, default=str)
         print(f"✅ Metrics saved to: {metrics_file}")
         
         # Save detailed report
-        report_file = os.path.join(save_dir, f"bluebert_report_{timestamp}.txt")
+        report_file = os.path.join(save_dir, f"biobert_bio_report_{timestamp}.txt")
         with open(report_file, 'w') as f:
-            f.write("=== BLUEBERT EMOTION CLASSIFICATION REPORT ===\n")
+            f.write("=== BIOBERT + BIO EMOTION CLASSIFICATION REPORT ===\n")
             f.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
-            f.write(f"Model: {self.model_name}\n")
+            f.write(f"BioBERT Model: {self.model_name}\n")
+            f.write(f"BIO Embedding Dim: {self.bio_embeddings.embedding_dim}\n")
             f.write("=" * 60 + "\n\n")
             
             f.write("OVERALL METRICS:\n")
@@ -517,12 +663,13 @@ class BlueBERTTrainer:
             self.plot_training_history(save_dir, timestamp)
         
         # Save model
-        model_file = os.path.join(save_dir, f"bluebert_model_{timestamp}.pth")
+        model_file = os.path.join(save_dir, f"biobert_bio_model_{timestamp}.pth")
         torch.save({
             'model_state_dict': self.model.state_dict(),
             'label_encoder': self.label_encoder,
             'emotion_classes': self.emotion_classes,
-            'model_name': self.model_name
+            'model_name': self.model_name,
+            'bio_embeddings': self.bio_embeddings
         }, model_file)
         print(f"✅ Model saved to: {model_file}")
         
@@ -539,7 +686,7 @@ class BlueBERTTrainer:
             xticklabels=self.emotion_classes,
             yticklabels=self.emotion_classes
         )
-        plt.title('BlueBERT Confusion Matrix')
+        plt.title('BioBERT + BIO Embeddings Confusion Matrix')
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
         
@@ -582,7 +729,7 @@ class BlueBERTTrainer:
         print(f"✅ Training history plot saved to: {history_file}")
 
 def main():
-    parser = argparse.ArgumentParser(description='BlueBERT Emotion Classification')
+    parser = argparse.ArgumentParser(description='BioBERT + BIO Embeddings Emotion Classification')
     parser.add_argument('--data', default='../../datasets/output_with_emotions_undersample.xlsx',
                        help='Path to balanced emotion dataset')
     parser.add_argument('--epochs', type=int, default=3, help='Number of training epochs')
@@ -593,14 +740,14 @@ def main():
     
     args = parser.parse_args()
     
-    print("🔵 BLUEBERT EMOTION CLASSIFICATION")
+    print("🧬➕ BIOBERT + BIO EMBEDDINGS EMOTION CLASSIFICATION")
     print("=" * 60)
     print(f"PyTorch version: {torch.__version__}")
     print(f"Device: {device}")
     print(f"CUDA available: {torch.cuda.is_available()}")
     
     # Initialize trainer
-    trainer = BlueBERTTrainer()
+    trainer = BioBERTBIOTrainer()
     
     # Load data
     df = trainer.load_data(args.data)
@@ -641,7 +788,7 @@ def main():
     # Save results
     trainer.save_results(metrics, args.save_dir)
     
-    print("\n🎉 BLUEBERT TRAINING AND EVALUATION COMPLETE!")
+    print("\n🎉 BIOBERT + BIO EMBEDDINGS TRAINING AND EVALUATION COMPLETE!")
 
 if __name__ == "__main__":
     main() 
