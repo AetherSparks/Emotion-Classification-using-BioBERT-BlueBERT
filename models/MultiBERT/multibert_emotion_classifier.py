@@ -762,10 +762,13 @@ class MultiBERTTrainer:
         # Create epoch range starting from 1
         epochs = range(1, len(history['train_losses']) + 1)
         
+        # Determine model title based on features used
+        model_title = "MultiBERT + Hindi Features" if self.use_hindi_features else "MultiBERT"
+        
         # Loss plot
         ax1.plot(epochs, history['train_losses'], label='Training Loss', marker='o')
         ax1.plot(epochs, history['val_losses'], label='Validation Loss', marker='s')
-        ax1.set_title('Training & Validation Loss')
+        ax1.set_title(f'{model_title} - Training & Validation Loss')
         ax1.set_xlabel('Epoch')
         ax1.set_ylabel('Loss')
         ax1.set_xticks(epochs)
@@ -781,7 +784,7 @@ class MultiBERTTrainer:
             ax2.axhline(y=test_accuracy, color='red', linestyle='--', linewidth=2, 
                        label=f'Final Test Accuracy: {test_accuracy:.4f}')
         
-        ax2.set_title('Validation Accuracy During Training')
+        ax2.set_title(f'{model_title} - Validation Accuracy During Training')
         ax2.set_xlabel('Epoch')
         ax2.set_ylabel('Accuracy')
         ax2.set_xticks(epochs)

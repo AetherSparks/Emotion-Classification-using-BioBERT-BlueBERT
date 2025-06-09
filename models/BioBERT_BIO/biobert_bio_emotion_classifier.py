@@ -719,7 +719,7 @@ class BioBERTBIOTrainer:
             xticklabels=self.emotion_classes,
             yticklabels=self.emotion_classes
         )
-        plt.title('BioBERT + BIO Embeddings Confusion Matrix')
+        plt.title('BioBERT + Hindi BIO Features Confusion Matrix')
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
         
@@ -740,7 +740,7 @@ class BioBERTBIOTrainer:
         # Loss plot
         ax1.plot(epochs, history['train_losses'], label='Training Loss', marker='o')
         ax1.plot(epochs, history['val_losses'], label='Validation Loss', marker='s')
-        ax1.set_title('Training & Validation Loss')
+        ax1.set_title('BioBERT + Hindi BIO Features - Training & Validation Loss')
         ax1.set_xlabel('Epoch')
         ax1.set_ylabel('Loss')
         ax1.set_xticks(epochs)
@@ -756,7 +756,7 @@ class BioBERTBIOTrainer:
             ax2.axhline(y=test_accuracy, color='red', linestyle='--', linewidth=2, 
                        label=f'Final Test Accuracy: {test_accuracy:.4f}')
         
-        ax2.set_title('Validation Accuracy During Training')
+        ax2.set_title('BioBERT + Hindi BIO Features - Validation Accuracy During Training')
         ax2.set_xlabel('Epoch')
         ax2.set_ylabel('Accuracy')
         ax2.set_xticks(epochs)
