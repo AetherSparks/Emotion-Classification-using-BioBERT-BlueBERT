@@ -39,7 +39,7 @@ def main():
     print("✅ Enhanced emotional categories")
     print("✅ Poetry & literature terms added")
     
-    # Model training commands
+    # Model training commands - ALL 6 VARIANTS
     models = [
         {
             "name": "MultiBERT (Basic)",
@@ -52,9 +52,19 @@ def main():
             "expected_improvement": "49% → 56%+"
         },
         {
+            "name": "BioBERT (Basic)",
+            "command": "cd models/BioBERT && python biobert_emotion_classifier.py --epochs 10",
+            "expected_improvement": "33% → 45%+"
+        },
+        {
             "name": "BioBERT + Enhanced Hindi",
             "command": "cd models/BioBERT_BIO && python biobert_bio_emotion_classifier.py --epochs 10",
             "expected_improvement": "44% → 52%+"
+        },
+        {
+            "name": "BlueBERT (Basic)",
+            "command": "cd models/BlueBERT && python bluebert_emotion_classifier.py --epochs 10",
+            "expected_improvement": "33% → 45%+"
         },
         {
             "name": "BlueBERT + Enhanced Hindi",
@@ -96,6 +106,7 @@ def main():
     
     successful = sum(1 for r in results if r['success'])
     print(f"\n🎯 SUCCESS RATE: {successful}/{len(results)} models trained successfully")
+    print(f"📊 Total Models: {len(results)} variants across 5 model directories")
     
     if successful > 0:
         print(f"\n📈 NEXT STEPS:")

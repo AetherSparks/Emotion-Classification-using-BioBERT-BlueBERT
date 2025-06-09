@@ -584,7 +584,7 @@ def main():
     parser = argparse.ArgumentParser(description='BlueBERT Emotion Classification')
     parser.add_argument('--data', default='../../datasets/corrected_balanced_dataset.xlsx',
                        help='Path to balanced emotion dataset')
-    parser.add_argument('--epochs', type=int, default=5, help='Number of training epochs')
+    parser.add_argument('--epochs', type=int, default=10, help='Number of training epochs')
     parser.add_argument('--batch_size', type=int, default=8, help='Batch size')
     parser.add_argument('--learning_rate', type=float, default=2e-5, help='Learning rate')
     parser.add_argument('--max_length', type=int, default=128, help='Max sequence length')
