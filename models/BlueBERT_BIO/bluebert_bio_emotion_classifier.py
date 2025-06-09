@@ -640,16 +640,15 @@ class BlueBERTBIOTrainer:
         
         # Create results directory
         os.makedirs(save_dir, exist_ok=True)
-        timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
         
         # Save metrics as JSON
-        metrics_file = os.path.join(save_dir, f"bluebert_bio_metrics_{timestamp}.json")
+        metrics_file = os.path.join(save_dir, "bluebert_bio_metrics.json")
         with open(metrics_file, 'w') as f:
             json.dump(metrics, f, indent=2, default=str)
         print(f"✅ Metrics saved to: {metrics_file}")
         
         # Save detailed report
-        report_file = os.path.join(save_dir, f"bluebert_bio_report_{timestamp}.txt")
+        report_file = os.path.join(save_dir, "bluebert_bio_report.txt")
         with open(report_file, 'w') as f:
             f.write("=== BLUEBERT + BIO EMOTION CLASSIFICATION REPORT ===\n")
             f.write(f"Generated on: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}\n")
@@ -683,14 +682,14 @@ class BlueBERTBIOTrainer:
         print(f"✅ Report saved to: {report_file}")
         
         # Save confusion matrix visualization
-        self.plot_confusion_matrix(metrics['confusion_matrix'], save_dir, timestamp)
+        self.plot_confusion_matrix(metrics['confusion_matrix'], save_dir)
         
         # Save training history if available
         if 'training_history' in self.results:
-            self.plot_training_history(save_dir, timestamp)
+            self.plot_training_history(save_dir)
         
         # Save model
-        model_file = os.path.join(save_dir, f"bluebert_bio_model_{timestamp}.pth")
+        model_file = os.path.join(save_dir, "bluebert_bio_model.pth")
         torch.save({
             'model_state_dict': self.model.state_dict(),
             'label_encoder': self.label_encoder,
@@ -702,7 +701,7 @@ class BlueBERTBIOTrainer:
         
         return metrics_file, report_file, model_file
     
-    def plot_confusion_matrix(self, cm, save_dir, timestamp):
+    def plot_confusion_matrix(self, cm, save_dir):
         """Plot and save confusion matrix"""
         plt.figure(figsize=(10, 8))
         sns.heatmap(
@@ -717,12 +716,12 @@ class BlueBERTBIOTrainer:
         plt.ylabel('True Label')
         plt.xlabel('Predicted Label')
         
-        cm_file = os.path.join(save_dir, f"confusion_matrix_{timestamp}.png")
+        cm_file = os.path.join(save_dir, "bluebert_bio_confusion_matrix.png")
         plt.savefig(cm_file, dpi=300, bbox_inches='tight')
         plt.close()
         print(f"✅ Confusion matrix plot saved to: {cm_file}")
     
-    def plot_training_history(self, save_dir, timestamp):
+    def plot_training_history(self, save_dir):
         """Plot and save training history"""
         history = self.results['training_history']
         
@@ -750,7 +749,7 @@ class BlueBERTBIOTrainer:
         ax2.legend()
         ax2.grid(True)
         
-        history_file = os.path.join(save_dir, f"training_history_{timestamp}.png")
+        history_file = os.path.join(save_dir, "bluebert_bio_training_history.png")
         plt.savefig(history_file, dpi=300, bbox_inches='tight')
         plt.close()
         print(f"✅ Training history plot saved to: {history_file}")
