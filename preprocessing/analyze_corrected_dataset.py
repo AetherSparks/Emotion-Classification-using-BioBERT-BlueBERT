@@ -97,7 +97,7 @@ class DatasetQualityAnalyzer:
         
         # Calculate balance score
         expected_per_class = total / len(emotion_counts)
-        counts_list = list(emotion_counts.values())
+        counts_list = list(emotion_counts.values)
         mean_count = sum(counts_list) / len(counts_list)
         variance = sum((x - mean_count) ** 2 for x in counts_list) / len(counts_list)
         std_dev = variance ** 0.5
