@@ -119,9 +119,9 @@ def fix_original_dataset():
     print("🔧 FIXING ORIGINAL DATASET LABELS (1000 SAMPLES)")
     print("=" * 70)
     
-    # Load the original dataset with emotions
-    df = pd.read_excel('datasets/output_with_emotions.xlsx')
-    print(f"📂 Loaded original dataset: {df.shape[0]} samples")
+    # Load the current corrected full dataset
+    df = pd.read_excel('../datasets/corrected_full_dataset.xlsx')
+    print(f"📂 Loaded current dataset: {df.shape[0]} samples")
     
     # Initialize corrector
     corrector = HindiUrduEmotionCorrector()
@@ -162,8 +162,8 @@ def fix_original_dataset():
         percentage = (count / len(df)) * 100
         print(f"  {emotion}: {count} samples ({percentage:.1f}%)")
     
-    # Save corrected full dataset
-    output_file = 'datasets/output_with_emotions_corrected_full.xlsx'
+    # Save corrected full dataset (overwrite existing)
+    output_file = '../datasets/corrected_full_dataset.xlsx'
     df_corrected = df[['text', 'emotion_corrected']].copy()
     df_corrected.columns = ['text', 'emotion']
     df_corrected.to_excel(output_file, index=False)
@@ -225,7 +225,7 @@ def balance_corrected_dataset(df_corrected):
     
     # Save balanced dataset
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    output_file = f'datasets/output_with_emotions_corrected_balanced_{timestamp}.xlsx'
+    output_file = '../datasets/corrected_balanced_dataset.xlsx'
     df_balanced.to_excel(output_file, index=False)
     
     print(f"\n💾 SAVED CORRECTED & BALANCED DATASET:")

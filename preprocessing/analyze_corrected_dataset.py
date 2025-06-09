@@ -97,7 +97,11 @@ class DatasetQualityAnalyzer:
         
         # Calculate balance score
         expected_per_class = total / len(emotion_counts)
-        balance_score = 1 - np.std([count for count in emotion_counts.values()]) / expected_per_class
+        counts_list = list(emotion_counts.values())
+        mean_count = sum(counts_list) / len(counts_list)
+        variance = sum((x - mean_count) ** 2 for x in counts_list) / len(counts_list)
+        std_dev = variance ** 0.5
+        balance_score = 1 - std_dev / expected_per_class
         
         print(f"\n⚖️ BALANCE METRICS:")
         print(f"  Expected per class: {expected_per_class:.1f}")
@@ -224,7 +228,7 @@ def main():
     print("=" * 70)
     
     # Load corrected dataset
-    dataset_file = "datasets/output_with_emotions_corrected_balanced_20250609_140452.xlsx"
+    dataset_file = "../datasets/corrected_balanced_dataset.xlsx"
     df = pd.read_excel(dataset_file)
     
     print(f"📂 Dataset: {dataset_file}")
