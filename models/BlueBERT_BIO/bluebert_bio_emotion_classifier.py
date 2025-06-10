@@ -436,31 +436,42 @@ class BlueBERTBIOTrainer:
         
         return self.model
     
-    def train_model(self, train_loader, val_loader, epochs=3, learning_rate=2e-5):
-        """Train the enhanced BlueBERT + BIO model"""
-        print(f"\n🚀 TRAINING BLUEBERT + BIO MODEL...")
-        print(f"  Epochs: {epochs}")
-        print(f"  Learning rate: {learning_rate}")
-        print(f"  Clinical attention enabled")
+    def train_model(self, train_loader, val_loader, epochs=3, learning_rate=5e-6, patience=4):
+        """Train the BlueBERT + BIO model with enhanced stability and early stopping"""
+        print(f"\n🚀 TRAINING BLUEBERT + BIO MODEL WITH ENHANCED SETTINGS...")
+        print(f"  Epochs: {epochs} (with early stopping)")
+        print(f"  Learning rate: {learning_rate} (SIGNIFICANTLY reduced for stability)")
+        print(f"  Early stopping patience: {patience} epochs (higher for BIO features)")
+        print(f"  Enhanced regularization: ENABLED")
+        print(f"  🩺 BlueBERT + BIO: Medical domain + Hindi embeddings")
         
-        # Initialize optimizer and scheduler
-        optimizer = AdamW(self.model.parameters(), lr=learning_rate)
-        total_steps = len(train_loader) * epochs
-        scheduler = get_linear_schedule_with_warmup(
-            optimizer,
-            num_warmup_steps=0,
-            num_training_steps=total_steps
+        # Setup optimizer with weight decay for better regularization
+        optimizer = AdamW(
+            self.model.parameters(), 
+            lr=learning_rate,
+            weight_decay=0.025,  # Higher weight decay for complex model
+            eps=1e-8
+        )
+        
+        # Learning rate scheduler - reduce on plateau
+        from torch.optim.lr_scheduler import ReduceLROnPlateau
+        lr_scheduler = ReduceLROnPlateau(
+            optimizer, mode='min', factor=0.3, patience=2, verbose=True
         )
         
         criterion = nn.CrossEntropyLoss()
         
-        # Training history
+        # Training history and early stopping variables
         train_losses = []
         val_losses = []
         val_accuracies = []
-        
-        best_val_acc = 0
+        best_val_loss = float('inf')
+        best_val_accuracy = 0.0
+        patience_counter = 0
         best_model_state = None
+        
+        print(f"\n📊 TRAINING PROGRESS:")
+        print("=" * 80)
         
         for epoch in range(epochs):
             print(f"\n📈 Epoch {epoch + 1}/{epochs}")
@@ -468,9 +479,9 @@ class BlueBERTBIOTrainer:
             # Training phase
             self.model.train()
             total_train_loss = 0
+            num_batches = 0
             
             for batch_idx, batch in enumerate(train_loader):
-                # Move to device
                 input_ids = batch['input_ids'].to(device)
                 attention_mask = batch['attention_mask'].to(device)
                 bio_features = batch['bio_features'].to(device)
@@ -481,46 +492,86 @@ class BlueBERTBIOTrainer:
                 logits = self.model(input_ids, attention_mask, bio_features)
                 loss = criterion(logits, labels)
                 
-                # Backward pass
+                # Backward pass with gradient clipping (more aggressive for complex model)
                 loss.backward()
+                torch.nn.utils.clip_grad_norm_(self.model.parameters(), max_norm=0.5)
                 optimizer.step()
-                scheduler.step()
                 
                 total_train_loss += loss.item()
+                num_batches += 1
                 
-                # Progress update
-                if (batch_idx + 1) % 10 == 0:
-                    print(f"  Batch {batch_idx + 1}/{len(train_loader)}, Loss: {loss.item():.4f}")
+                # Print progress less frequently to reduce noise
+                if (batch_idx + 1) % max(1, len(train_loader) // 3) == 0:
+                    print(f"  📊 Batch {batch_idx + 1}/{len(train_loader)}, Loss: {loss.item():.4f}")
             
-            avg_train_loss = total_train_loss / len(train_loader)
+            avg_train_loss = total_train_loss / num_batches
             train_losses.append(avg_train_loss)
             
             # Validation phase
-            val_loss, val_acc = self.evaluate_model(val_loader, criterion)
+            val_loss, val_accuracy = self.evaluate_model(val_loader, criterion)
             val_losses.append(val_loss)
-            val_accuracies.append(val_acc)
+            val_accuracies.append(val_accuracy)
             
-            print(f"  Train Loss: {avg_train_loss:.4f}")
-            print(f"  Val Loss: {val_loss:.4f}")
-            print(f"  Val Accuracy: {val_acc:.4f}")
+            # Update learning rate scheduler
+            lr_scheduler.step(val_loss)
+            current_lr = optimizer.param_groups[0]['lr']
             
-            # Save best model
-            if val_acc > best_val_acc:
-                best_val_acc = val_acc
+            # Print epoch results
+            print(f"  📈 Train Loss: {avg_train_loss:.4f}")
+            print(f"  📉 Val Loss: {val_loss:.4f}")
+            print(f"  🎯 Val Accuracy: {val_accuracy:.4f} ({val_accuracy:.2%})")
+            print(f"  📚 Learning Rate: {current_lr:.2e}")
+            
+            # Early stopping logic
+            if val_loss < best_val_loss:
+                best_val_loss = val_loss
+                best_val_accuracy = val_accuracy
+                patience_counter = 0
+                # Save best model state
                 best_model_state = self.model.state_dict().copy()
-                print(f"  🎯 New best validation accuracy: {val_acc:.4f}")
+                print(f"  ✅ NEW BEST: Val Loss {best_val_loss:.4f}, Val Acc {best_val_accuracy:.4f}")
+            else:
+                patience_counter += 1
+                print(f"  ⏳ Patience: {patience_counter}/{patience} (no improvement)")
+                
+                if patience_counter >= patience:
+                    print(f"\n🛑 EARLY STOPPING at epoch {epoch + 1}")
+                    print(f"   📊 Best validation loss: {best_val_loss:.4f}")
+                    print(f"   🎯 Best validation accuracy: {best_val_accuracy:.4f}")
+                    break
+            
+            # Check for training instability (very high loss)
+            if avg_train_loss > 10.0:
+                print(f"\n⚠️  WARNING: High training loss detected ({avg_train_loss:.4f})")
+                print("   Consider reducing learning rate further")
+            
+            # Check for potential overfitting
+            if len(train_losses) > 2 and val_loss > train_losses[-1] * 1.5:
+                print(f"   ⚠️  Potential overfitting detected (val_loss >> train_loss)")
+            
+            # Check for class imbalance issues
+            if val_accuracy <= 0.4:  # Low accuracy threshold
+                print(f"   🔍 INFO: Low accuracy detected - BIO features may need adjustment")
         
-        # Load best model
+        # Load best model if early stopping occurred
         if best_model_state is not None:
             self.model.load_state_dict(best_model_state)
-            print(f"\n✅ Training completed. Best validation accuracy: {best_val_acc:.4f}")
+            print(f"\n✅ Loaded best model state from validation")
+        
+        print(f"\n🎉 TRAINING COMPLETED!")
+        print(f"   📊 Final validation loss: {best_val_loss:.4f}")
+        print(f"   🎯 Best validation accuracy: {best_val_accuracy:.4f}")
+        print(f"   📈 Total epochs trained: {len(train_losses)}")
+        print(f"   🧬 BlueBERT + BIO features combination completed")
         
         # Store training history
         self.results['training_history'] = {
             'train_losses': train_losses,
             'val_losses': val_losses,
             'val_accuracies': val_accuracies,
-            'best_val_accuracy': best_val_acc
+            'best_val_loss': best_val_loss,
+            'best_val_accuracy': best_val_accuracy,
+            'early_stopped': patience_counter >= patience
         }
         
         return self.model
