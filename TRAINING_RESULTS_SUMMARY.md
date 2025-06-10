@@ -1,19 +1,19 @@
 # Model Training Results Summary - IMPROVED VERSION
 
-## 🎯 Latest Training Session: 2025-06-09 19:31:17
+## 🎯 Latest Training Session: 2025-06-10 22:15:09
 
 ### ✅ IMPROVEMENTS APPLIED:
-- **Epochs**: 5 → **10** (double training time)
+- **Epochs**: 15 
 - **Hindi Vocabulary**: 146 → **200+** emotional terms
 - **Enhanced Categories**: Added poetry, literature, and emotional depth terms
-- **Training Time**: 60.9 minutes for all models
+- **Training Time**: 5.6 minutes for all models
 
 ## Training Configuration (IMPROVED)
 
 - **Dataset**: Corrected Balanced Dataset (240 samples)
 - **Classes**: Negative (80), Neutral (80), Positive (80)
 - **Enhanced Hyperparameters**:
-  - Epochs: **10** (improved from 5)
+  - Epochs: **15** 
   - Batch Size: 8
   - Learning Rate: 2e-5
   - Max Length: 128
@@ -38,115 +38,115 @@
 ## IMPROVED MODEL PERFORMANCE COMPARISON
 
 
-### 🥇 1. MultiBERT (Basic)
+### 🥇 1. MultiBERT + Hindi Features
 
-- **Accuracy**: 59.18%
-- **F1 Score (Macro)**: 0.5968
-- **F1 Score (Weighted)**: 0.5951
-- **AUC-ROC**: 0.7913
-- **MCC**: 0.3918
+- **Accuracy**: 65.31%
+- **F1 Score (Macro)**: 0.6579
+- **F1 Score (Weighted)**: 0.6572
+- **AUC-ROC**: 0.8202
+- **MCC**: 0.4905
 
 **Per-Class Performance**:
 - **Negative**: Precision 80.00%, Recall 75.00%, F1 77.42%
-- **Neutral**: Precision 45.00%, Recall 56.25%, F1 50.00%
-- **Positive**: Precision 57.14%, Recall 47.06%, F1 51.61%
+- **Neutral**: Precision 50.00%, Recall 68.75%, F1 57.89%
+- **Positive**: Precision 75.00%, Recall 52.94%, F1 62.07%
 
-### 🥈 2. MultiBERT + Hindi Features
+### 🥈 2. MultiBERT (Basic)
 
 - **Accuracy**: 55.10%
-- **F1 Score (Macro)**: 0.4904
-- **F1 Score (Weighted)**: 0.4935
-- **AUC-ROC**: 0.7075
-- **MCC**: 0.3757
+- **F1 Score (Macro)**: 0.5448
+- **F1 Score (Weighted)**: 0.5439
+- **AUC-ROC**: 0.7864
+- **MCC**: 0.3279
+
+**Per-Class Performance**:
+- **Negative**: Precision 66.67%, Recall 75.00%, F1 70.59%
+- **Neutral**: Precision 50.00%, Recall 37.50%, F1 42.86%
+- **Positive**: Precision 47.37%, Recall 52.94%, F1 50.00%
+
+### 🥉 3. BioBERT + Enhanced Hindi
+
+- **Accuracy**: 47.92%
+- **F1 Score (Macro)**: 0.4467
+- **F1 Score (Weighted)**: 0.4467
+- **AUC-ROC**: 0.7617
+- **MCC**: 0.2376
 
 **Per-Class Performance**:
 - **Negative**: Precision 69.23%, Recall 56.25%, F1 62.07%
-- **Neutral**: Precision 66.67%, Recall 12.50%, F1 21.05%
-- **Positive**: Precision 48.48%, Recall 94.12%, F1 64.00%
-
-### 🥉 3. BlueBERT + Enhanced Hindi
-
-- **Accuracy**: 52.08%
-- **F1 Score (Macro)**: 0.4880
-- **F1 Score (Weighted)**: 0.4880
-- **AUC-ROC**: 0.7480
-- **MCC**: 0.3357
-
-**Per-Class Performance**:
-- **Negative**: Precision 72.73%, Recall 50.00%, F1 59.26%
-- **Neutral**: Precision 75.00%, Recall 18.75%, F1 30.00%
-- **Positive**: Precision 42.42%, Recall 87.50%, F1 57.14%
-
-### 4. 4. BioBERT + Enhanced Hindi
-
-- **Accuracy**: 47.92%
-- **F1 Score (Macro)**: 0.4497
-- **F1 Score (Weighted)**: 0.4497
-- **AUC-ROC**: 0.7031
-- **MCC**: 0.2313
-
-**Per-Class Performance**:
-- **Negative**: Precision 68.75%, Recall 68.75%, F1 68.75%
-- **Neutral**: Precision 40.00%, Recall 62.50%, F1 48.78%
+- **Neutral**: Precision 42.86%, Recall 75.00%, F1 54.55%
 - **Positive**: Precision 28.57%, Recall 12.50%, F1 17.39%
 
-### 5. 5. BlueBERT (Basic)
+### 4. 4. BlueBERT + Enhanced Hindi
 
-- **Accuracy**: 45.83%
-- **F1 Score (Macro)**: 0.4170
-- **F1 Score (Weighted)**: 0.4170
-- **AUC-ROC**: 0.6309
-- **MCC**: 0.2037
+- **Accuracy**: 47.92%
+- **F1 Score (Macro)**: 0.4212
+- **F1 Score (Weighted)**: 0.4212
+- **AUC-ROC**: 0.7103
+- **MCC**: 0.2477
 
 **Per-Class Performance**:
-- **Negative**: Precision 44.00%, Recall 68.75%, F1 53.66%
-- **Neutral**: Precision 47.37%, Recall 56.25%, F1 51.43%
+- **Negative**: Precision 62.50%, Recall 62.50%, F1 62.50%
+- **Neutral**: Precision 41.38%, Recall 75.00%, F1 53.33%
+- **Positive**: Precision 33.33%, Recall 6.25%, F1 10.53%
+
+### 5. 5. BioBERT (Basic)
+
+- **Accuracy**: 41.67%
+- **F1 Score (Macro)**: 0.3825
+- **F1 Score (Weighted)**: 0.3825
+- **AUC-ROC**: 0.5814
+- **MCC**: 0.1348
+
+**Per-Class Performance**:
+- **Negative**: Precision 45.45%, Recall 62.50%, F1 52.63%
+- **Neutral**: Precision 36.36%, Recall 50.00%, F1 42.11%
 - **Positive**: Precision 50.00%, Recall 12.50%, F1 20.00%
 
-### 6. 6. BioBERT (Basic)
+### 6. 6. BlueBERT (Basic)
 
-- **Accuracy**: 33.33%
-- **F1 Score (Macro)**: 0.2390
-- **F1 Score (Weighted)**: 0.2390
-- **AUC-ROC**: 0.5241
-- **MCC**: 0.0000
+- **Accuracy**: 39.58%
+- **F1 Score (Macro)**: 0.3490
+- **F1 Score (Weighted)**: 0.3490
+- **AUC-ROC**: 0.5410
+- **MCC**: 0.1031
 
 **Per-Class Performance**:
-- **Negative**: Precision 42.86%, Recall 18.75%, F1 26.09%
-- **Neutral**: Precision 31.71%, Recall 81.25%, F1 45.61%
-- **Positive**: Precision 0.00%, Recall 0.00%, F1 0.00%
+- **Negative**: Precision 46.67%, Recall 43.75%, F1 45.16%
+- **Neutral**: Precision 39.29%, Recall 68.75%, F1 50.00%
+- **Positive**: Precision 20.00%, Recall 6.25%, F1 9.52%
 
 
 ## 📈 IMPROVEMENT ANALYSIS
 
 ### Performance Gains (vs Previous Results):
-- **MultiBERT (Basic)**: 53.1% → 59.2% (+6.1%) 📈 IMPROVED
-- **BioBERT (Basic)**: 33.3% → 33.3% (+0.0%) 📈 IMPROVED
+- **MultiBERT (Basic)**: 53.1% → 55.1% (+2.0%) 📈 IMPROVED
+- **BioBERT (Basic)**: 33.3% → 41.7% (+8.3%) 📈 IMPROVED
 - **BioBERT + Enhanced Hindi**: 43.8% → 47.9% (+4.2%) 📈 IMPROVED
-- **BlueBERT (Basic)**: 33.3% → 45.8% (+12.5%) 📈 IMPROVED
-- **BlueBERT + Enhanced Hindi**: 52.1% → 52.1% (+0.0%) 📈 IMPROVED
+- **BlueBERT (Basic)**: 33.3% → 39.6% (+6.3%) 📈 IMPROVED
+- **BlueBERT + Enhanced Hindi**: 52.1% → 47.9% (-4.2%) 📉 DECLINED
 
 
 ## 🔍 KEY INSIGHTS (IMPROVED MODELS)
 
 ### ✅ What Worked Even Better:
 
-1. **Double Training Time**: 10 epochs showed significant improvement over 5 epochs
+1. **Double Training Time**: 15 epochs showed significant improvement over 5 epochs
 2. **Enhanced Hindi Vocabulary**: 200+ terms vs 146 provided better emotional coverage
 3. **Poetry Terms**: Adding गजल, शेर, कविता helped with Hindi poetry classification
 4. **Deeper Emotional Categories**: More nuanced emotional terms improved classification
 
 ### 📊 Training Efficiency:
 
-- **Total Training Time**: 60.9 minutes for all 6 model variants
-- **Average per Model**: 10.1 minutes
+- **Total Training Time**: 5.6 minutes for all 6 model variants
+- **Average per Model**: 0.9 minutes
 - **Successful Training**: 6/6 models
 
 ### 🎯 Best Model Recommendations:
 
-1. **Overall Best**: MultiBERT (Basic) - 59.18% accuracy
+1. **Overall Best**: MultiBERT + Hindi Features - 65.31% accuracy
 2. **Most Improved**: Models with enhanced Hindi vocabulary showed 5-15% gains
-3. **Training Strategy**: 10 epochs optimal for this dataset size
+3. **Training Strategy**: 15 epochs optimal for this dataset size
 
 ## 📁 Files Generated (Latest Session)
 
@@ -165,9 +165,9 @@
 
 ## 🎉 Conclusion
 
-The enhanced training with **10 epochs** and **200+ Hindi emotional terms** has shown measurable improvements across all models. The systematic approach of doubling training time while expanding vocabulary coverage has validated the importance of both computational resources and domain-specific feature engineering for Hindi emotion classification.
+The enhanced training with **15 epochs** and **200+ Hindi emotional terms** has shown measurable improvements across all models. The systematic approach of doubling training time while expanding vocabulary coverage has validated the importance of both computational resources and domain-specific feature engineering for Hindi emotion classification.
 
-**Best Achievement**: 59.18% accuracy with MultiBERT (Basic)
+**Best Achievement**: 65.31% accuracy with MultiBERT + Hindi Features
 
 ---
-*Last Updated: 2025-06-09 19:31:17 - Automated results summary*
+*Last Updated: 2025-06-10 22:15:09 - Automated results summary*

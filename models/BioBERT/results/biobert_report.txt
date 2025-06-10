@@ -1,33 +1,33 @@
 === BIOBERT EMOTION CLASSIFICATION REPORT ===
-Generated on: 2025-06-09 20:05:56
+Generated on: 2025-06-10 22:12:35
 Model: dmis-lab/biobert-base-cased-v1.1
 ============================================================
 
 OVERALL METRICS:
-  Accuracy:           0.3333
-  F1 Score (Macro):   0.2390
-  F1 Score (Weighted): 0.2390
-  Precision (Macro):  0.2485
-  Precision (Weighted): 0.2485
-  Recall (Macro):     0.3333
-  Recall (Weighted):  0.3333
-  RMSE:               0.4846
-  AUC-ROC:            0.5632
-  MCC:                0.0000
+  Accuracy:           0.4167
+  F1 Score (Macro):   0.3825
+  F1 Score (Weighted): 0.3825
+  Precision (Macro):  0.4394
+  Precision (Weighted): 0.4394
+  Recall (Macro):     0.4167
+  Recall (Weighted):  0.4167
+  RMSE:               0.4785
+  AUC-ROC:            0.5814
+  MCC:                0.1348
 
 EMOTION-WISE RESULTS:
   NEGATIVE:
-    Precision: 0.4286
-    Recall:    0.1875
-    F1-Score:  0.2609
+    Precision: 0.4545
+    Recall:    0.6250
+    F1-Score:  0.5263
     Support:   16.0
   NEUTRAL:
-    Precision: 0.3171
-    Recall:    0.8125
-    F1-Score:  0.4561
+    Precision: 0.3636
+    Recall:    0.5000
+    F1-Score:  0.4211
     Support:   16.0
   POSITIVE:
-    Precision: 0.0000
-    Recall:    0.0000
-    F1-Score:  0.0000
+    Precision: 0.5000
+    Recall:    0.1250
+    F1-Score:  0.2000
     Support:   16.0
