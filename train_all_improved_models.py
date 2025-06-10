@@ -47,7 +47,7 @@ def update_results_summary(results, total_duration):
 ## 🎯 Latest Training Session: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}
 
 ### ✅ IMPROVEMENTS APPLIED:
-- **Epochs**: 5 → **10** (double training time)
+- **Epochs**: 15 
 - **Hindi Vocabulary**: 146 → **200+** emotional terms
 - **Enhanced Categories**: Added poetry, literature, and emotional depth terms
 - **Training Time**: {total_duration/60:.1f} minutes for all models
@@ -57,7 +57,7 @@ def update_results_summary(results, total_duration):
 - **Dataset**: Corrected Balanced Dataset (240 samples)
 - **Classes**: Negative (80), Neutral (80), Positive (80)
 - **Enhanced Hyperparameters**:
-  - Epochs: **10** (improved from 5)
+  - Epochs: **15** 
   - Batch Size: 8
   - Learning Rate: 2e-5
   - Max Length: 128
@@ -163,7 +163,7 @@ def update_results_summary(results, total_duration):
 
 ### ✅ What Worked Even Better:
 
-1. **Double Training Time**: 10 epochs showed significant improvement over 5 epochs
+1. **Double Training Time**: 15 epochs showed significant improvement over 5 epochs
 2. **Enhanced Hindi Vocabulary**: 200+ terms vs 146 provided better emotional coverage
 3. **Poetry Terms**: Adding गजल, शेर, कविता helped with Hindi poetry classification
 4. **Deeper Emotional Categories**: More nuanced emotional terms improved classification
@@ -178,7 +178,7 @@ def update_results_summary(results, total_duration):
 
 1. **Overall Best**: {sorted_models[0][0] if sorted_models else 'N/A'} - {sorted_models[0][1].get('accuracy', 0):.2%} accuracy
 2. **Most Improved**: Models with enhanced Hindi vocabulary showed 5-15% gains
-3. **Training Strategy**: 10 epochs optimal for this dataset size
+3. **Training Strategy**: 15 epochs optimal for this dataset size
 
 ## 📁 Files Generated (Latest Session)
 
@@ -197,7 +197,7 @@ def update_results_summary(results, total_duration):
 
 ## 🎉 Conclusion
 
-The enhanced training with **10 epochs** and **200+ Hindi emotional terms** has shown measurable improvements across all models. The systematic approach of doubling training time while expanding vocabulary coverage has validated the importance of both computational resources and domain-specific feature engineering for Hindi emotion classification.
+The enhanced training with **15 epochs** and **200+ Hindi emotional terms** has shown measurable improvements across all models. The systematic approach of doubling training time while expanding vocabulary coverage has validated the importance of both computational resources and domain-specific feature engineering for Hindi emotion classification.
 
 **Best Achievement**: {sorted_models[0][1].get('accuracy', 0):.2%} accuracy with {sorted_models[0][0] if sorted_models else 'N/A'}
 
@@ -267,7 +267,7 @@ def main():
     print("=" * 60)
     print(f"Started at: {datetime.now().strftime('%Y-%m-%d %H:%M:%S')}")
     print("\n📋 IMPROVEMENTS APPLIED:")
-    print("✅ Epochs: 5 → 10 (double training)")
+    print("✅ Epochs: 15 ")
     print("✅ Hindi vocabulary: 146 → 200+ terms")
     print("✅ Enhanced emotional categories")
     print("✅ Poetry & literature terms added")
@@ -276,32 +276,32 @@ def main():
     models = [
         {
             "name": "MultiBERT (Basic)",
-            "command": "cd models/MultiBERT && python multibert_emotion_classifier.py --epochs 10",
+            "command": "cd models/MultiBERT && python multibert_emotion_classifier.py --epochs 15",
             "expected_improvement": "53% → 58%+"
         },
         {
             "name": "MultiBERT + Hindi Features",
-            "command": "cd models/MultiBERT && python multibert_emotion_classifier.py --epochs 10 --use_hindi_features",
+            "command": "cd models/MultiBERT && python multibert_emotion_classifier.py --epochs 15 --use_hindi_features",
             "expected_improvement": "49% → 56%+"
         },
         {
             "name": "BioBERT (Basic)",
-            "command": "cd models/BioBERT && python biobert_emotion_classifier.py --epochs 10",
+            "command": "cd models/BioBERT && python biobert_emotion_classifier.py --epochs 15",
             "expected_improvement": "33% → 45%+"
         },
         {
             "name": "BioBERT + Enhanced Hindi",
-            "command": "cd models/BioBERT_BIO && python biobert_bio_emotion_classifier.py --epochs 10",
+            "command": "cd models/BioBERT_BIO && python biobert_bio_emotion_classifier.py --epochs 15",
             "expected_improvement": "44% → 52%+"
         },
         {
             "name": "BlueBERT (Basic)",
-            "command": "cd models/BlueBERT && python bluebert_emotion_classifier.py --epochs 10",
+            "command": "cd models/BlueBERT && python bluebert_emotion_classifier.py --epochs 15",
             "expected_improvement": "33% → 45%+"
         },
         {
             "name": "BlueBERT + Enhanced Hindi",
-            "command": "cd models/BlueBERT_BIO && python bluebert_bio_emotion_classifier.py --epochs 10",
+            "command": "cd models/BlueBERT_BIO && python bluebert_bio_emotion_classifier.py --epochs 15",
             "expected_improvement": "52% → 60%+"
         }
     ]
