@@ -306,32 +306,32 @@ def main():
     models = [
         {
             "name": "MultiBERT (Basic) - Balanced",
-            "command": "cd models/MultiBERT && python multibert_emotion_classifier.py --epochs 12 --learning_rate 1.5e-5",
+            "command": "cd models/MultiBERT && python multibert_emotion_classifier.py --epochs 15 --learning_rate 1.5e-5",
             "expected_improvement": "65% → 68%+ (balanced approach)"
         },
         {
             "name": "MultiBERT + Hindi Features - Balanced",
-            "command": "cd models/MultiBERT && python multibert_emotion_classifier.py --epochs 12 --learning_rate 1.5e-5 --use_hindi_features",
+            "command": "cd models/MultiBERT && python multibert_emotion_classifier.py --epochs 15 --learning_rate 1.5e-5 --use_hindi_features",
             "expected_improvement": "45% → 62%+ (restore performance)"
         },
         {
             "name": "BioBERT (Basic) - Balanced",
-            "command": "cd models/BioBERT && python biobert_emotion_classifier.py --epochs 10 --learning_rate 1.5e-5",
+            "command": "cd models/BioBERT && python biobert_emotion_classifier.py --epochs 15 --learning_rate 1.5e-5",
             "expected_improvement": "29% → 40%+ (balanced learning)"
         },
         {
             "name": "BioBERT + Enhanced Hindi - Balanced",
-            "command": "cd models/BioBERT_BIO && python biobert_bio_emotion_classifier.py --epochs 10 --learning_rate 1.5e-5",
+            "command": "cd models/BioBERT_BIO && python biobert_bio_emotion_classifier.py --epochs 15 --learning_rate 1.5e-5",
             "expected_improvement": "48% → 55%+ (maintain gains)"
         },
         {
             "name": "BlueBERT (Basic) - Moderate Fix",
-            "command": "cd models/BlueBERT && python bluebert_emotion_classifier.py --epochs 8 --learning_rate 1e-5",
+            "command": "cd models/BlueBERT && python bluebert_emotion_classifier.py --epochs 15 --learning_rate 1e-5",
             "expected_improvement": "33% → 45%+ (moderate approach)"
         },
         {
             "name": "BlueBERT + Enhanced Hindi - Moderate Fix",
-            "command": "cd models/BlueBERT_BIO && python bluebert_bio_emotion_classifier.py --epochs 8 --learning_rate 1e-5",
+            "command": "cd models/BlueBERT_BIO && python bluebert_bio_emotion_classifier.py --epochs 15 --learning_rate 1e-5",
             "expected_improvement": "42% → 52%+ (restore performance)"
         }
     ]
