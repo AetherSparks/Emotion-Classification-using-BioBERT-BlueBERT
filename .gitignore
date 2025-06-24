@@ -1,16 +1,19 @@
 venv
 
+
 # Model files (too large for GitHub)
 *.pth
 *.pkl
 *.h5
 *.model
 
+
 # Results directories
 # */results/
 # */results_optimized/
 # results/
 # results_optimized/
+
 
 # Large data files
 # *.png
@@ -23,16 +26,19 @@ venv
 *.jsonl.gz.part.1
 *.jsonl.gz.part.2
 
+
 # Python cache
 __pycache__/
 *.pyc
 *.pyo
+
 
 # IDE files
 .vscode/
 .idea/
 *.swp
 *.swo
+
 
 # OS files
 .DS_Store
