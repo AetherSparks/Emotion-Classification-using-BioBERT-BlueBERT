@@ -1,0 +1,46 @@
+=== COMPREHENSIVE SCORE LEVEL FUSION ANALYSIS REPORT ===
+Generated on: 2025-07-05 21:15:48
+============================================================
+
+This report contains results from:
+1. Basic 2-model fusion (BioBERT + BlueBERT)
+2. Multi-model fusion (all available models)
+
+MODELS USED:
+  BioBERT: dmis-lab/biobert-base-cased-v1.1 (Medical domain)
+  BlueBERT: bionlp/bluebert_pubmed_mimic_uncased_L-12_H-768_A-12 (Clinical domain)
+  MultiBERT: bert-base-multilingual-cased (Multilingual)
+  BioBERT_BIO: BioBERT + Hindi emotional word embeddings
+  BlueBERT_BIO: BlueBERT + Hindi emotional word embeddings
+
+BASIC FUSION RESULTS:
+  BioBERT Individual: 0.3333
+  BlueBERT Individual: 0.3542
+
+MULTI-MODEL FUSION RESULTS:
+Individual Models:
+  BioBERT        : 0.3333
+  BlueBERT       : 0.3542
+  BioBERT_BIO    : 0.5000
+  BlueBERT_BIO   : 0.5208
+  MultiBERT      : 0.6531
+
+Fusion Results:
+  BlueBERT_BIO+MultiBERT   : Acc=0.7292, F1=0.7317, +11.7%
+  BioBERT_BIO+MultiBERT    : Acc=0.7083, F1=0.7099, +8.5%
+  BlueBERT+MultiBERT       : Acc=0.6667, F1=0.6687, +2.1%
+  multi_model_all          : Acc=0.6667, F1=0.6695, +2.1%
+  BioBERT+MultiBERT        : Acc=0.6458, F1=0.6499, +-1.1%
+  BioBERT_BIO+BlueBERT_BIO : Acc=0.6458, F1=0.6474, +24.0%
+  BlueBERT+BioBERT_BIO     : Acc=0.6042, F1=0.6064, +20.8%
+  BlueBERT+BlueBERT_BIO    : Acc=0.6042, F1=0.6064, +16.0%
+  BioBERT+BioBERT_BIO      : Acc=0.5833, F1=0.5866, +16.7%
+  BioBERT+BlueBERT_BIO     : Acc=0.5833, F1=0.5866, +12.0%
+  BioBERT+BlueBERT         : Acc=0.5208, F1=0.5223, +47.1%
+
+VISUALIZATIONS GENERATED:
+  - individual_models_performance.png: Individual model comparison
+  - basic_fusion_heatmap.png: Basic fusion strategy × normalization heatmap
+  - multi_model_fusion_results.png: Top multi-model fusion results
+  - overall_performance_comparison.png: Complete performance hierarchy
+  - improvement_analysis.png: Improvement over baseline analysis
